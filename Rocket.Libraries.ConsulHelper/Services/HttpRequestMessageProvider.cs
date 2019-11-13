@@ -1,9 +1,6 @@
 ﻿namespace Rocket.Libraries.ConsulHelper.Services
 {
-    using System;
-    using System.Collections.Generic;
     using System.Net.Http;
-    using System.Text;
 
     /// <summary>
     /// This class returns a HttpRequestMessage with a well formatted url.

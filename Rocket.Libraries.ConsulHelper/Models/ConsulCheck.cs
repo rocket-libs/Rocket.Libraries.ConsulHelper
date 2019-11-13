@@ -1,9 +1,5 @@
 ﻿namespace Rocket.Libraries.ConsulHelper.Models
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-
     /// <summary>
     /// This class is used as a container for information to help Consul perform health checks on the registered service.
     /// </summary>

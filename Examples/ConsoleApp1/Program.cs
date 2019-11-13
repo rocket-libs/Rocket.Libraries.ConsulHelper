@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Rocket.Libraries.ConsulHelper.Models;
-using Rocket.Libraries.ConsulHelper.Services;
 using Rocket.Libraries.ConsulHelper.Services.ConsulRegistryReading;
 using Rocket.Libraries.ConsulHelper.Services.ConsulRegistryWriting;
 using System;
