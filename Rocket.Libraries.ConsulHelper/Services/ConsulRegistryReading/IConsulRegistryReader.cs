@@ -1,5 +1,6 @@
 ﻿namespace Rocket.Libraries.ConsulHelper.Services.ConsulRegistryReading
 {
+    using System.Collections.Immutable;
     using System.Threading.Tasks;
     using Rocket.Libraries.ConsulHelper.Models;
 
@@ -21,5 +22,11 @@
         /// <param name="serviceId">The id of the service to look up.</param>
         /// <returns>On successful look up, the base url of the service is returned, but on failure, this method returns null.</returns>
         Task<string> GetServiceBaseAddressAsync(string serviceId);
+
+        /// <summary>
+        /// Returns a list of all registered services.
+        /// </summary>
+        /// <returns>A list of all registered services.</returns>
+        Task<ImmutableList<string>> GetAllServiceNamesAsync();
     }
 }

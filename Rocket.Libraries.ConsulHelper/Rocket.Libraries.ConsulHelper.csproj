@@ -3,17 +3,17 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
 	  <CodeAnalysisRuleSet>../rocket.rules-v01.ruleset</CodeAnalysisRuleSet>
-	  <Version>1.1.0-beta04</Version>
+	  <Version>1.2.0</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Dead simple library to register services to Consul and to query Consul for registered services.</Description>
-    <Authors>Nyingi Maina</Authors>
-    <Company>Nyingi Maina</Company>
-    <PackageProjectUrl>https://github.com/nyingi/Rocket.Libraries.ConsulHelper</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/nyingi/Rocket.Libraries.ConsulHelper</RepositoryUrl>
+    <Authors>Rocket Libraries</Authors>
+    <Company>Rocket Libraries</Company>
+    <PackageProjectUrl>https://github.com/rocket-libs/Rocket.Libraries.ConsulHelper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rocket-libs/Rocket.Libraries.ConsulHelper</RepositoryUrl>
   </PropertyGroup>
   
   <ItemGroup>
@@ -30,6 +30,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="System.Collections.Immutable" Version="1.6.0" />
   </ItemGroup>
 
 </Project>
