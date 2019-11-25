@@ -1,5 +1,6 @@
 ﻿namespace Rocket.Libraries.ConsulHelper.Services.ConsulRegistryReading
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Net.Http;
@@ -57,7 +58,7 @@
             var serviceSettingsMissing = serviceSettings == null;
             if (serviceSettingsMissing)
             {
-                return string.Empty;
+                throw new Exception($"Service with id '{serviceId}' is not registered with Consul. Typo perharps?");
             }
             else
             {
