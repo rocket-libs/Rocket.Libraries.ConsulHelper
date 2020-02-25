@@ -5,6 +5,8 @@
     /// </summary>
     public class ConsulCheck
     {
+        private string httpHealth;
+
         /// <summary>
         /// Gets or sets a value that specifies that checks associated with a service should deregister after this time. This is specified as a time duration with suffix like "10m". If a check is in the critical state for more than this configured value, then its associated service (and all of its associated checks) will automatically be deregistered. The minimum timeout is 1 minute.
         /// </summary>
@@ -13,7 +15,19 @@
         /// <summary>
         /// Gets or sets relative url to the endpoint to be called for health checks while using the HTTP protocol on your service. MUST NOT include the base path of your service.
         /// </summary>
-        public string HttpHealth { get; set; }
+        public string HttpHealth
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(httpHealth))
+                {
+                    httpHealth = "api/consul-helper/health";
+                }
+                return httpHealth;
+            }
+
+            set => httpHealth = value;
+        }
 
         /// <summary>
         /// Gets full url to the endpoint to be called for health checks while using the HTTP protocol on your service.

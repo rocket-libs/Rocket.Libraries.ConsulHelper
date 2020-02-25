@@ -8,6 +8,7 @@
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Newtonsoft.Json;
+    using Rocket.Libraries.ConsulHelper.Convenience;
     using Rocket.Libraries.ConsulHelper.Models;
 
     /// <summary>
@@ -66,6 +67,8 @@
         {
             try
             {
+                AutoDetectPortIfRequired();
+                AutoDetectIPAddressIfRequired();
                 Logger.LogNoisyInformation($"Attempting Registration of {_serviceSettings.Name} to Consul at {_serviceSettings.ConsulUrl}");
                 Logger.LogNoisyInformation($"Service Address: {_serviceSettings.Address}");
                 Logger.LogNoisyInformation($"Service Port: {_serviceSettings.Port}");
@@ -80,6 +83,26 @@
             {
                 Logger.LogNoisyError(e, $"Error occured registering service ${_serviceSettings.Name} with Consul");
                 Logger.LogNoisyWarning($"Service {_serviceSettings.Name} failed to register with Consul. This may impact performance of other services as they won't be able to locate it");
+            }
+        }
+
+        private void AutoDetectIPAddressIfRequired()
+        {
+            var hasUserSuppliedIPAddress = !string.IsNullOrEmpty(_serviceSettings.Address);
+            if (!hasUserSuppliedIPAddress)
+            {
+                _serviceSettings.Address = $"http://{IpAddressProvider.IpAddress}";
+                Logger.LogNoisyWarning($"Registering self to consul using the the auto-detected IP Address '{_serviceSettings.Address}'");
+            }
+        }
+
+        private void AutoDetectPortIfRequired()
+        {
+            var hasPort = _serviceSettings.Port != default;
+            if (!hasPort)
+            {
+                _serviceSettings.Port = PortNumberProvider.Port;
+                Logger.LogNoisyWarning($"Registering self to consul using the the auto-detected Port '{_serviceSettings.Port}'");
             }
         }
 
