@@ -1,0 +1,42 @@
+name: NuGet Generation
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    name: Update NuGet package
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v1
+
+      - name: Setup .NET Core @ Latest
+        uses: actions/setup-dotnet@v1
+
+      - name: Build solution and generate NuGet package
+        run: |  
+          cd Rocket.Libraries.ConsulHelper
+          dotnet pack -c Release -o out  
+          dotnet nuget push ./out/*.nupkg -k ${{secrets.Nuget_Key}} -s https://api.nuget.org/v3/index.json
+      
+      - name: Send Success Notification
+        if: ${{ success() }}
+        uses: techulus/push-github-action@1.0.0
+        env:
+          API_KEY: ${{secrets.Techlus_Api_Key}}
+          MESSAGE: "Success: Rocket.Libraries.ConsulHelper"
+          
+      - name: Send Failure Notification
+        if: ${{ failure() }}
+        uses: techulus/push-github-action@1.0.0
+        env:
+          API_KEY: ${{secrets.Techlus_Api_Key}}
+          MESSAGE: "Failure: Rocket.Libraries.ConsulHelper"
