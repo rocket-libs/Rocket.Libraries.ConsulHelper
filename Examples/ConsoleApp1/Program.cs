@@ -98,7 +98,7 @@ namespace ConsoleApp1
 
         private static string GetInput(string question)
         {
-            Console.WriteLine($"{question}: ");
+            Console.Write($"{question}: ");
             return Console.ReadLine();
         }
 
