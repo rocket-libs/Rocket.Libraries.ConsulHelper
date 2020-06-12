@@ -8,6 +8,7 @@
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Newtonsoft.Json;
+    using Rocket.Libraries.ConsulHelper.Convenience;
     using Rocket.Libraries.ConsulHelper.Models;
 
     /// <summary>
@@ -66,17 +67,19 @@
         {
             try
             {
+                AutoDetectPortIfRequired();
+                AutoDetectIPAddressIfRequired();
                 var payload = JsonConvert.SerializeObject (_serviceSettings);
-                Logger.LogNoisyInformation ($"Attempting Registration of {_serviceSettings.Name} to Consul at {_serviceSettings.ConsulUrl}");
-                Logger.LogNoisyInformation ($"Service Address: {_serviceSettings.Address}");
-                Logger.LogNoisyInformation ($"Service Port: {_serviceSettings.Port}");
-                Logger.LogNoisyInformation ($"Payload: {payload}");
-                LogAboutHealthCheck ();
-                var httpClient = _httpClientFactory.CreateClient ();
-                var request = HttpRequestMessageProvider.Get (HttpMethod.Put, _serviceSettings.ConsulUrl, "v1/agent/service/register");
-                request.Content = new StringContent (payload, System.Text.Encoding.UTF8, "application/json");
-                var response = await httpClient.SendAsync (request);
-                LogResponse (response);
+                Logger.LogNoisyInformation($"Attempting Registration of {_serviceSettings.Name} to Consul at {_serviceSettings.ConsulUrl}");
+                Logger.LogNoisyInformation($"Service Address: {_serviceSettings.Address}");
+                Logger.LogNoisyInformation($"Service Port: {_serviceSettings.Port}");
+                Logger.LogNoisyInformation ($"Full Payload: {payload}");
+                LogAboutHealthCheck();
+                var httpClient = _httpClientFactory.CreateClient();
+                var request = HttpRequestMessageProvider.Get(HttpMethod.Put, _serviceSettings.ConsulUrl, "v1/agent/service/register");
+                request.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
+                var response = await httpClient.SendAsync(request);
+                LogResponse(response);
             }
             catch (Exception e)
             {
@@ -85,7 +88,27 @@
             }
         }
 
-        private void LogAboutHealthCheck ()
+        private void AutoDetectIPAddressIfRequired()
+        {
+            var hasUserSuppliedIPAddress = !string.IsNullOrEmpty(_serviceSettings.Address);
+            if (!hasUserSuppliedIPAddress)
+            {
+                _serviceSettings.Address = $"http://{IpAddressProvider.IpAddress}";
+                Logger.LogNoisyWarning($"Registering self to consul using the the auto-detected IP Address '{_serviceSettings.Address}'");
+            }
+        }
+
+        private void AutoDetectPortIfRequired()
+        {
+            var hasPort = _serviceSettings.Port != default;
+            if (!hasPort)
+            {
+                _serviceSettings.Port = PortNumberProvider.Port;
+                Logger.LogNoisyWarning($"Registering self to consul using the the auto-detected Port '{_serviceSettings.Port}'");
+            }
+        }
+
+        private void LogAboutHealthCheck()
         {
             var healthCheckMissing = string.IsNullOrEmpty (_serviceSettings.Check.HttpHealth);
             if (healthCheckMissing)

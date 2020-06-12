@@ -1,8 +1,5 @@
 ﻿namespace Rocket.Libraries.ConsulHelper.Services.ConsulRegistryWriting
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     using System.Threading.Tasks;
 
     /// <summary>

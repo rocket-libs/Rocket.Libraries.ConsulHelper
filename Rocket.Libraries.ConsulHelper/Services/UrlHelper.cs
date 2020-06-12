@@ -1,8 +1,6 @@
 ﻿namespace Rocket.Libraries.ConsulHelper.Services
 {
     using System;
-    using System.Collections.Generic;
-    using System.Text;
 
     /// <summary>
     /// This class contains methods that help format url to ensure that they are valid.

@@ -1,10 +1,14 @@
 ﻿namespace Rocket.Libraries.ConsulHelper.Services.ConsulRegistryReading
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.Net.Http;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using Rocket.Libraries.ConsulHelper.Models;
     using Rocket.Libraries.ConsulHelper.Services.ConsulRegistryWriting;
 
@@ -54,13 +58,42 @@
             var serviceSettingsMissing = serviceSettings == null;
             if (serviceSettingsMissing)
             {
-                return string.Empty;
+                throw new Exception($"Service with id '{serviceId}' is not registered with Consul. Typo perharps?");
             }
             else
             {
                 var baseAddress = $"{serviceSettings.AddressWithoutTailingSlash}:{serviceSettings.Port}/";
                 Logger.LogNoisyInformation($"Base address of {serviceId} is {baseAddress}");
                 return baseAddress;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ImmutableList<string>> GetAllServiceNamesAsync()
+        {
+            var serviceNames = ImmutableList<string>.Empty;
+            Logger.LogNoisyInformation($"Fetching information about all services");
+            var httpClient = _httpClientFactory.CreateClient();
+            var request = HttpRequestMessageProvider.Get(
+                    HttpMethod.Get,
+                    _serviceSettings.ConsulUrl,
+                    $"v1/catalog/services");
+            var response = await httpClient.SendAsync(request);
+            LogResponse(response);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                var jObj = JsonConvert.DeserializeObject(responseString) as JObject;
+                foreach (var prop in jObj.Properties())
+                {
+                    serviceNames = serviceNames.Add(prop.Name);
+                }
+
+                return serviceNames;
+            }
+            else
+            {
+                return null;
             }
         }
 

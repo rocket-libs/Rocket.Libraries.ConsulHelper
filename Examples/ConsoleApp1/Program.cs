@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Rocket.Libraries.ConsulHelper.Models;
-using Rocket.Libraries.ConsulHelper.Services;
 using Rocket.Libraries.ConsulHelper.Services.ConsulRegistryReading;
 using Rocket.Libraries.ConsulHelper.Services.ConsulRegistryWriting;
 using System;
@@ -58,6 +57,7 @@ namespace ConsoleApp1
             _otherAppName = GetInput($"Enter name of service you wish to lookup on Consul (tip: you can enter '{ThisAppName}' if you have no other services registered)");
             var registrar = ServiceProvider.GetService<IConsulRegistryWriter>();
             registrar.RegisterAsync().GetAwaiter().GetResult();
+            GetAllServiceNames();
             Logger.LogInformation($"Starting. Will register this service as '{ThisAppName}'");
             Logger.LogInformation($"Will ping Consul at 10 second intervals until address for '{_otherAppName}' is obtained");
             Logger.LogInformation($"You may hit Enter at anytime to quit");
@@ -67,6 +67,12 @@ namespace ConsoleApp1
 
             var timer = new Timer(PingConsul, null, 0, 100000);
             Console.ReadLine();
+        }
+
+        private static void GetAllServiceNames()
+        {
+            var consulRegistryReader = ServiceProvider.GetService<IConsulRegistryReader>();
+            var serviceNames = consulRegistryReader.GetAllServiceNamesAsync().GetAwaiter().GetResult();
         }
 
         private static void PingConsul(object obj)
