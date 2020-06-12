@@ -68,7 +68,7 @@
             try
             {
                 AutoDetectPortIfRequired();
-                AutoDetectIPAddressIfRequired();
+                Logger.LogNoisyInformation($"Registering self to consul using the IP Address '{_serviceSettings.Address}'");
                 var payload = JsonConvert.SerializeObject (_serviceSettings);
                 Logger.LogNoisyInformation($"Attempting Registration of {_serviceSettings.Name} to Consul at {_serviceSettings.ConsulUrl}");
                 Logger.LogNoisyInformation($"Service Address: {_serviceSettings.Address}");
@@ -85,16 +85,6 @@
             {
                 Logger.LogNoisyError (e, $"Error occured registering service ${_serviceSettings.Name} with Consul");
                 Logger.LogNoisyWarning ($"Service {_serviceSettings.Name} failed to register with Consul. This may impact performance of other services as they won't be able to locate it");
-            }
-        }
-
-        private void AutoDetectIPAddressIfRequired()
-        {
-            var hasUserSuppliedIPAddress = !string.IsNullOrEmpty(_serviceSettings.Address);
-            if (!hasUserSuppliedIPAddress)
-            {
-                _serviceSettings.Address = $"http://{IpAddressProvider.IpAddress}";
-                Logger.LogNoisyWarning($"Registering self to consul using the the auto-detected IP Address '{_serviceSettings.Address}'");
             }
         }
 
@@ -117,7 +107,7 @@
             }
             else
             {
-                Logger.LogNoisyInformation ($"Health check for service is {_serviceSettings.Check.HTTP}");
+                Logger.LogNoisyInformation ($"Health check for service shall be registered");
             }
         }
 
