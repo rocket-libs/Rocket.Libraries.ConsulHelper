@@ -44,7 +44,7 @@
             {
                 if (_logger == null)
                 {
-                    _logger = _loggerFactory.CreateLogger<ConsulRegistryWriter>();
+                    _logger = _loggerFactory.CreateLogger<Runner>();
                 }
 
                 return _logger;

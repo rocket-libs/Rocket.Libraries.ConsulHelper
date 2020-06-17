@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Rocket.Libraries.ConsulHelper.Models;
 using Rocket.Libraries.ConsulHelper.Services.ConsulRegistryReading;
 using Rocket.Libraries.ConsulHelper.Services.ConsulRegistryWriting;
+using Rocket.Libraries.ConsulHelper.Convenience;
 using System;
 using System.Threading;
 
@@ -28,10 +29,7 @@ namespace ConsoleApp1
                     var configuration = GetConfiguration();
                     _serviceProvider = new ServiceCollection()
                         .AddLogging()
-                        .AddHttpClient()
-                        .Configure<ConsulRegistrationSettings>(configuration.GetSection("ConsulSettings"))
-                        .AddSingleton<IConsulRegistryReader, ConsulRegistryReader>()
-                        .AddSingleton<IConsulRegistryWriter, ConsulRegistryWriter>()
+                        .AddConsulHelper(configuration)
                         .BuildServiceProvider();
                 }
                 return _serviceProvider;
