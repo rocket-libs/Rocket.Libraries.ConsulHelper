@@ -1,6 +1,7 @@
 # Rocket.Libraries.ConsulHelper
 
 ![NuGet Generation](https://github.com/rocket-libs/Rocket.Libraries.ConsulHelper/workflows/NuGet%20Generation/badge.svg?branch=master)
+
 Dead simple .Net library to register services to Consul and to query Consul for registered services.
 
 ## Quick Start
