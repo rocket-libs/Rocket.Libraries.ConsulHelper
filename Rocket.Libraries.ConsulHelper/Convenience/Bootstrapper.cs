@@ -11,7 +11,7 @@ namespace Rocket.Libraries.ConsulHelper.Convenience
 {
     public static class Bootstrapper
     {
-        public static void ConfigureConsulHelper (
+        public static void AddConsulHelper (
             this IServiceCollection services,
             IConfiguration configuration,
             string settingsSectionName = "RegistrationDescription")
