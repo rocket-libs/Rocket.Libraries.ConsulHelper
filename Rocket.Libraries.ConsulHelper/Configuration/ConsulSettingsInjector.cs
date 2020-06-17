@@ -1,8 +1,6 @@
 ﻿namespace Rocket.Libraries.ConsulHelper.Configuration
 {
     using System;
-    using System.Net;
-    using System.Net.Sockets;
     using Rocket.Libraries.ConsulHelper.Convenience;
     using Rocket.Libraries.ConsulHelper.Models;
 
