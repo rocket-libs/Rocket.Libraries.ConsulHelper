@@ -11,7 +11,7 @@ namespace Rocket.Libraries.ConsulHelper.Services.ConsulRegistryWriting
 {
     public interface IConsulHttpClientWrapper
     {
-        Task RegisterAsync();
+        Task RegisterAsync ();
     }
 
     public class ConsulHttpClientWrapper : IConsulHttpClientWrapper
@@ -23,6 +23,8 @@ namespace Rocket.Libraries.ConsulHelper.Services.ConsulRegistryWriting
 
         private ILogger _logger;
 
+        private byte _attemptCount = 1;
+
         private readonly HttpClient httpClient;
 
         /*/// <summary>
@@ -31,7 +33,7 @@ namespace Rocket.Libraries.ConsulHelper.Services.ConsulRegistryWriting
         /// <param name="serviceSettingsOpts">Information about the service to be registered.</param>
         /// <param name="loggerFactory">An instance of ILoggerFactory fed in via Dependancy Injection that's used to generate a logger.</param>
         /// <param name="httpClient">An instance of HttpClient object to facilitate communication with Consul.</param>*/
-        public ConsulHttpClientWrapper(HttpClient httpClient, IOptions<ConsulRegistrationSettings> serviceSettingsOpts, ILoggerFactory loggerFactory)
+        public ConsulHttpClientWrapper (HttpClient httpClient, IOptions<ConsulRegistrationSettings> serviceSettingsOpts, ILoggerFactory loggerFactory)
         {
             this.httpClient = httpClient;
             _serviceSettings = serviceSettingsOpts.Value;
@@ -43,69 +45,70 @@ namespace Rocket.Libraries.ConsulHelper.Services.ConsulRegistryWriting
             {
                 if (_logger == null)
                 {
-                    _logger = _loggerFactory.CreateLogger<ConsulRegistryWriter>();
+                    _logger = _loggerFactory.CreateLogger<ConsulRegistryWriter> ();
                 }
 
                 return _logger;
             }
         }
 
-        public async Task RegisterAsync()
+        public async Task RegisterAsync ()
         {
             try
             {
-                AutoDetectPortIfRequired();
-                Logger.LogNoisyInformation($"Registering self to consul using the IP Address '{_serviceSettings.Address}'");
-                var payload = JsonConvert.SerializeObject(_serviceSettings);
-                Logger.LogNoisyInformation($"Attempting Registration of {_serviceSettings.Name} to Consul at {_serviceSettings.ConsulUrl}");
-                Logger.LogNoisyInformation($"Service Address: {_serviceSettings.Address}");
-                Logger.LogNoisyInformation($"Service Port: {_serviceSettings.Port}");
-                Logger.LogNoisyInformation($"Full Payload: {payload}");
-                LogAboutHealthCheck();
-                var request = HttpRequestMessageProvider.Get(HttpMethod.Put, _serviceSettings.ConsulUrl, "v1/agent/service/register");
-                request.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-                var response = await httpClient.SendAsync(request);
-                LogResponse(response);
+                Logger.LogNoisyInformation ($"Consul Registration attempt {_attemptCount} of {Bootstrapper.MaxRegistrationAttempts}");
+                AutoDetectPortIfRequired ();
+                Logger.LogNoisyInformation ($"Registering self to consul using the IP Address '{_serviceSettings.Address}'");
+                var payload = JsonConvert.SerializeObject (_serviceSettings);
+                Logger.LogNoisyInformation ($"Attempting Registration of {_serviceSettings.Name} to Consul at {_serviceSettings.ConsulUrl}");
+                Logger.LogNoisyInformation ($"Service Address: {_serviceSettings.Address}");
+                Logger.LogNoisyInformation ($"Service Port: {_serviceSettings.Port}");
+                Logger.LogNoisyInformation ($"Full Payload: {payload}");
+                LogAboutHealthCheck ();
+                var request = HttpRequestMessageProvider.Get (HttpMethod.Put, _serviceSettings.ConsulUrl, "v1/agent/service/register");
+                request.Content = new StringContent (payload, System.Text.Encoding.UTF8, "application/json");
+                var response = await httpClient.SendAsync (request);
+                LogResponse (response);
             }
             catch (Exception e)
             {
-                Logger.LogNoisyError(e, $"Error occured registering service ${_serviceSettings.Name} with Consul");
-                Logger.LogNoisyWarning($"Service {_serviceSettings.Name} failed to register with Consul. This may impact performance of other services as they won't be able to locate it");
+                Logger.LogNoisyError (e, $"Error occured registering service {_serviceSettings.Name} with Consul");
+                Logger.LogNoisyWarning ($"Service {_serviceSettings.Name} failed to register with Consul. This may impact performance of other services as they won't be able to locate it");
             }
         }
 
-        private void AutoDetectPortIfRequired()
+        private void AutoDetectPortIfRequired ()
         {
             var hasPort = _serviceSettings.Port != default;
             if (!hasPort)
             {
                 _serviceSettings.Port = PortNumberProvider.Port;
-                Logger.LogNoisyWarning($"Registering self to consul using the the auto-detected Port '{_serviceSettings.Port}'");
+                Logger.LogNoisyWarning ($"Registering self to consul using the the auto-detected Port '{_serviceSettings.Port}'");
             }
         }
 
-        private void LogAboutHealthCheck()
+        private void LogAboutHealthCheck ()
         {
-            var healthCheckMissing = string.IsNullOrEmpty(_serviceSettings.Check.HttpHealth);
+            var healthCheckMissing = string.IsNullOrEmpty (_serviceSettings.Check?.HttpHealth);
             if (healthCheckMissing)
             {
-                Logger.LogNoisyWarning($"No health-check specified. This isn't necessarily catastrophic but because of this, Consul will continue serving up this service's url even when the service is not available");
+                Logger.LogNoisyWarning ($"No health-check specified. This isn't necessarily catastrophic but because of this, Consul will continue serving up this service's url even when the service is not available");
             }
             else
             {
-                Logger.LogNoisyInformation($"Health check for service shall be registered");
+                Logger.LogNoisyInformation ($"Health check for service shall be registered");
             }
         }
 
-        private void LogResponse(HttpResponseMessage response)
+        private void LogResponse (HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
             {
-                Logger.LogNoisyInformation($"Service Registration With Consul Succeeded");
+                Logger.LogNoisyInformation ($"Service Registration With Consul Succeeded");
             }
             else
             {
-                Logger.LogNoisyError(null, $"Service Registration With Consul Failed With Status Code {response.StatusCode}");
+                Logger.LogNoisyError (null, $"Service Registration With Consul Failed With Status Code {response.StatusCode}");
             }
         }
     }
