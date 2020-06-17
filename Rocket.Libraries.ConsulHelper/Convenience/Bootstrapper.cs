@@ -11,10 +11,11 @@ namespace Rocket.Libraries.ConsulHelper.Convenience
 {
     public static class Bootstrapper
     {
+        internal const byte MaxRegistrationAttempts = 10;
         public static void AddConsulHelper (
             this IServiceCollection services,
             IConfiguration configuration,
-            string settingsSectionName = "RegistrationDescription")
+            string settingsSectionName = "ServiceDiscovery")
         {
             services.AddHttpClient<IConsulHttpClientWrapper, ConsulHttpClientWrapper> ()
                 .AddPolicyHandler (GetRetryPolicy ())
@@ -29,7 +30,7 @@ namespace Rocket.Libraries.ConsulHelper.Convenience
             return HttpPolicyExtensions
                 .HandleTransientHttpError ()
                 .OrResult (msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
-                .WaitAndRetryAsync (6,
+                .WaitAndRetryAsync (MaxRegistrationAttempts,
                     retryAttempt => TimeSpan.FromSeconds (Math.Pow (2, retryAttempt)) +
                     TimeSpan.FromMilliseconds (jitterer.Next (0, 100)));
         }
