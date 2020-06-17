@@ -12,16 +12,17 @@ namespace Rocket.Libraries.ConsulHelper.Convenience
     public static class Bootstrapper
     {
         internal const byte MaxRegistrationAttempts = 10;
-        public static void AddConsulHelper (
+        public static IServiceCollection AddConsulHelper (
             this IServiceCollection services,
             IConfiguration configuration,
             string settingsSectionName = "ServiceDiscovery")
         {
-            services.AddHttpClient<IConsulHttpClientWrapper, ConsulHttpClientWrapper> ()
+            services.AddHttpClient<IConsulRegistryWriter, ConsulRegistryWriter> ()
                 .AddPolicyHandler (GetRetryPolicy ())
                 .AddPolicyHandler (GetCircuitBreakerPolicy ());
             services.Configure<ConsulRegistrationSettings> (configuration.GetSection (settingsSectionName));
-            services.AddHostedService<ConsulRegistryWriter> ();
+            services.AddHostedService<Runner> ();
+            return services;
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy ()
