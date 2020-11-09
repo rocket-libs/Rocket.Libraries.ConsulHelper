@@ -12,7 +12,7 @@ namespace Rocket.Libraries.ConsulHelper.Models
     public class ConsulRegistrationSettings
     {
         private string id;
-        private string address;
+        
 
         [JsonProperty ("ID")]
         public string Id
@@ -44,25 +44,30 @@ namespace Rocket.Libraries.ConsulHelper.Models
         /// <summary>
         /// Gets or sets the base url of your service.
         /// </summary>
-        [JsonIgnore]
+        [JsonProperty ("Address")]
         public string Address
         {
-            get
-            {
-                if (string.IsNullOrEmpty (address))
-                {
-                    address = $"http://{IpAddressProvider.IpAddress}";
-                }
-                return address;
-            }
-            set => address = value;
+            get; set;
         }
 
         /// <summary>
         /// Gets or sets the base url of your service.
         /// </summary>
-        [JsonProperty ("Address")]
-        internal Uri AddressUri => new Uri (Address);
+        
+        internal Uri AddressUri 
+        {
+            get 
+            {
+                if(string.IsNullOrEmpty(Address))
+                {
+                    return default;
+                }
+                else
+                {
+                    return new Uri(Address);
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the url your service is listening on.
