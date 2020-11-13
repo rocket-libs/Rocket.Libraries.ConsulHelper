@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Extensions.Http;
 using Rocket.Libraries.ConsulHelper.Models;
+using Rocket.Libraries.ConsulHelper.Services.ConsulRegistryReading;
 using Rocket.Libraries.ConsulHelper.Services.ConsulRegistryWriting;
 
 namespace Rocket.Libraries.ConsulHelper.Convenience
@@ -21,6 +22,7 @@ namespace Rocket.Libraries.ConsulHelper.Convenience
                 .AddPolicyHandler (GetRetryPolicy ())
                 .AddPolicyHandler (GetCircuitBreakerPolicy ());
             services.Configure<ConsulRegistrationSettings> (configuration.GetSection (settingsSectionName));
+            services.AddSingleton<IConsulRegistryReader, ConsulRegistryReader>();
             services.AddHostedService<Runner> ();
             return services;
         }
